@@ -1,12 +1,13 @@
 @info "Loading Dependencies"
 includet("util.jl")
 includet("../plot/plotBase.jl")
-using Distributions, Tullio, ProgressMeter
+using Distributions, Tullio, ProgressMeter, Random
 using Base.Meta
 using Symbolics: @variables, jacobian, build_function
 ##
 FIG_DIR = "/Users/niru8088/scratch/bayesWENDy/recruitmentPoster2026/figures"
 # define priors
+Random.seed!(1)
 α = 3
 s = 5 / ((α / (1 + α))^(1 / α ))
 priors = [2*(Beta(2,5) + .8), Frechet(α,s)]
@@ -21,7 +22,7 @@ function LOGISTIC_f!(du, u, w, t)
     du[1] = w[1] * u[1] - w[2] * u[1]^2
     nothing
 end
-noiseDist = Val(Normal)
+noiseDist = Val(LogNormal)
 ex = SimulatedWENDyData(
     "logisticGrowth", 
     LOGISTIC_f!,
@@ -40,7 +41,7 @@ ex = SimulatedWENDyData(
 simParams = SimulationParameters(
     seed=1, 
     timeSubsampleRate=1,
-    noiseRatio=.1,
+    noiseRatio=.3,
     corruptU0=true
 ) 
 simulate!(ex, simParams, ll=Warn)
@@ -118,16 +119,16 @@ p1a = plotjs(
             text="Logistic Growth", 
             x=0.5,
             xanchor="center",
-            font_size=30
+            font_size=20
         ),
         # yaxis_type=yaxis_type,
         showlegend=true, 
         xaxis=attr(
             title=attr(
                 text="\$t\$",
-                font_size=20
+                font_size=25
             ),
-            tick_font_size=15,
+            tick_font_size=20,
             showgrid=true, 
             zeroline=true,
             # domain=[0.1,0.9]
@@ -135,19 +136,19 @@ p1a = plotjs(
         yaxis=attr(
             title=attr(
                 text="\$u\$",
-                font_size=20
+                font_size=25
             ),
-            tick_font_size=15,
+            tick_font_size=20,
             showgrid=true, 
             zeroline=true
         ),
         legend=attr(
-            x=1,
-            y=1,
-            xref="paper", 
-            yref="paper",
-            xanchor="right",
-            yanchor="top",
+            # x=1,
+            # y=1,
+            # xref="paper", 
+            # yref="paper",
+            # xanchor="right",
+            # yanchor="top",
             font=(
                 family="sans-serif",
                 size=20,
@@ -158,7 +159,7 @@ p1a = plotjs(
             # entrywidth= 0,        # Manually set this based on your longest equation
             # entrywidthmode= "pixels", 
             # borderpad= 20,          # Give extra "buffer" for tall fractions or exponents
-            # borderwidth= 1
+            borderwidth= 1
         ),
         # margin_r= 150,
         hovermode="x unified"
@@ -208,74 +209,6 @@ relErr_MAP = norm(phat_MAP - pstar) / norm(pstar)
 @info "Relation coefficient error with prior $(relErr_prior)"
 @info "Relation coefficient error with MLE $(relErr_MLE)"
 @info "Relation coefficient error with MAP $(relErr_MAP)"
-##
-function compareOptimizationLandscapes(xx,yy)
-    pp = make_subplots(cols=3)
-    for (i, costFun) in enumerate([wendyProb.priorLoss, wendyProb.wnll, wendyProb.wnlp])
-        f = costFun.f;
-        global ff = zeros(length(yy), length(xx))
-        for (n, p1) in enumerate(xx), (m,p2) in enumerate(yy)
-            ff[m,n] = try 
-                log10(f([p1,p2]) + 100)
-            catch 
-                1e6 
-            end
-        end
-        ixNaN = findall(isnan.(ff) .|| isinf.(ff))
-        ff[ixNaN] .= 1e6
-        legendgrouptitle, phat,c_x,c_y,c_len,visible,zmin,zmax = if i == 1
-            "Prior", phat_prior, .25, 0.5,1, true,1.98,2.05
-        elseif i==2
-            "Likelihood", phat_MLE, .6, 0.5,1, false,2.5,4.2
-        else
-            "Posterior", phat_MAP, 1, 0.3,.6, true,2.5,4.2
-        end
-        add_trace!(pp,heatmap(x=xx, y=yy, z=ff,zmin=zmin,zmax=zmax, legendgroup=legendgrouptitle, legendgrouptitle_text=legendgrouptitle, showlegend=false, colorbar=attr(x=c_x,y=c_y,len=c_len), showscale=visible), row=1, col=i)
-        add_trace!(pp,scatter(mode="markers", marker_opacity=1, x=[p₀[1]], y=[p₀[2]], showlegend=i==1,name="\$\\mathbf{p}^{(0)}\$", marker=attr(symbol="square", color="black", size=20)), row=1, col=i)
-        add_trace!(pp,scatter(mode="markers", marker_opacity=0.8, x=[phat[1]], y=[phat[2]], showlegend=i==1, name="\$\\hat{\\mathbf{p}}\$", marker=attr(symbol="diamond", color="red", size=20)), row=1, col=i)
-        add_trace!(pp,scatter(mode="markers", marker_opacity=.8, x=[pstar[1]], y=[pstar[2]], showlegend=i==1, name="\$\\mathbf{p}^*\$", marker=attr(symbol="star", color="green", size=20)), row=1, col=i)
-    end
-    relayout!(pp, 
-        title=attr(
-            text="Comparing Optimization Landscapes",
-            font_size="large",
-            xanchor="center",
-            x=0.5
-        ),
-        yaxis=attr(title_font_size=15, range=[minimum(yy), maximum(yy)],title_text="p1"),
-        yaxis2=attr(title_font_size=15, range=[minimum(yy), maximum(yy)],),
-        yaxis3=attr(title_font_size=15, range=[minimum(yy), maximum(yy)],),
-        xaxis=attr(title_font_size=15, domain=[0,.25], range=[minimum(xx),maximum(xx)],title_text="Prior"),
-        xaxis2=attr(title_font_size=15, domain=[.35,.65], range=[minimum(xx),maximum(xx)],title_text="Likelihood" ),
-        xaxis3=attr(title_font_size=15, domain=[.7,1], range=[minimum(xx),maximum(xx)],title_text="Posterior" ),
-        legend=attr(
-            x=1,
-            y=1,
-            xref="paper", 
-            yref="paper",
-            xanchor="right",
-            yanchor="top",
-            font=(
-                family="sans-serif",
-                size=20,
-                color="#000"
-            ),
-            bgcolor="#E2E2E2",
-            bordercolor= "#636363",
-            # entrywidth= 0,        # Manually set this based on your longest equation
-            # entrywidthmode= "pixels", 
-            # borderpad= 20,          # Give extra "buffer" for tall fractions or exponents
-            # borderwidth= 1
-        ),
-        coloraxis=attr(colorbar=attr(y=0.3, len=.7))
-    )
-    pp
-end
-xx = 0:0.1:4
-yy = 0:0.1:10
-p2 = compareOptimizationLandscapes(xx,yy)
-savefig( p2, joinpath(FIG_DIR,"LogisticGrowth_OptimizationLandscape.pdf"),height=400, width=1200)
-p2
 ## Let's see if we can expand the weak resual with symbolic programming
 # Get all the data we need in local vars
 phat = pstar # use this approximation of p
@@ -645,7 +578,7 @@ trun_error = norm(R - R_int - R_lin + Φ*Rem)
     );
 ]
 ## Simple corrector
-max_iter = 20
+max_iter = 1
 pp = Vector(undef, max_iter+1)
 pp[1] = phat_MAP
 for i = 2:max_iter+1
@@ -671,7 +604,7 @@ for i = 2:max_iter+1
     relErr_cor = norm(pp[i] - pstar) / norm(pstar)
     @info @sprintf "- relErr %.4g" relErr_cor
 end
-phat_cor[end]
+phat_cor = pp[end]
 relErr_prior = norm(phat_prior - pstar) / norm(pstar)
 relErr_MLE = norm(phat_MLE - pstar) / norm(pstar)
 relErr_MAP = norm(phat_MAP - pstar) / norm(pstar)
@@ -772,7 +705,74 @@ p2 = plot(
     )
 )
 display([p1; p2])
-
+##
+##
+function compareOptimizationLandscapes(xx,yy)
+    pp = make_subplots(cols=3)
+    for (i, costFun) in enumerate([wendyProb.priorLoss, wendyProb.wnll, wendyProb.wnlp])
+        f = costFun.f;
+        global ff = zeros(length(yy), length(xx))
+        for (n, p1) in enumerate(xx), (m,p2) in enumerate(yy)
+            ff[m,n] = try 
+                log10(f([p1,p2]) + 100)
+            catch 
+                1e6 
+            end
+        end
+        ixNaN = findall(isnan.(ff) .|| isinf.(ff))
+        ff[ixNaN] .= 1e6
+        legendgrouptitle, phat,c_x,c_y,c_len,visible,zmin,zmax = if i == 1
+            "Prior", phat_prior, .25, 0.5,1, true,1.98,2.05
+        elseif i==2
+            "Likelihood", phat_MLE, .6, 0.5,1, false,2.5,4.2
+        else
+            "Posterior", phat_MAP, 1, 0.3,.6, true,2.5,4.2
+        end
+        add_trace!(pp,heatmap(x=xx, y=yy, z=ff,zmin=zmin,zmax=zmax, legendgroup=legendgrouptitle, legendgrouptitle_text=legendgrouptitle, showlegend=false, colorbar=attr(x=c_x,y=c_y,len=c_len), showscale=visible), row=1, col=i)
+        add_trace!(pp,scatter(mode="markers", marker_opacity=1, x=[p₀[1]], y=[p₀[2]], showlegend=i==1,name="\$\\mathbf{p}^{(0)}\$", marker=attr(symbol="square", color="black", size=20)), row=1, col=i)
+        add_trace!(pp,scatter(mode="markers", marker_opacity=0.8, x=[phat[1]], y=[phat[2]], showlegend=i==1, name="\$\\hat{\\mathbf{p}}\$", marker=attr(symbol="diamond", color="red", size=20)), row=1, col=i)
+        add_trace!(pp,scatter(mode="markers", marker_opacity=.8, x=[pstar[1]], y=[pstar[2]], showlegend=i==1, name="\$\\mathbf{p}^*\$", marker=attr(symbol="star", color="green", size=20)), row=1, col=i)
+    end
+    pp
+end
+xx = 1:0.05:4
+yy = 1:0.05:12
+p2 = compareOptimizationLandscapes(xx,yy)
+add_trace!(p2,scatter(mode="markers", marker_opacity=.8, x=[phat_cor[1]], y=[phat_cor[2]], showlegend=true, name="\$\\hat{\\mathbf{p}}_{\\mathrm{cor}}\$", marker=attr(symbol="circle", color="blue", size=20)), row=1, col=3)
+##
+relayout!(p2, 
+    title=attr(
+        text="Comparing Optimization Landscapes",
+        font_size=40,
+        xanchor="center",
+        x=0.5
+    ),
+    yaxis=attr(title_font_size=30, range=[minimum(yy), maximum(yy)],title_text="p₁"),
+    yaxis2=attr(title_font_size=30, range=[minimum(yy), maximum(yy)],),
+    yaxis3=attr(title_font_size=30, range=[minimum(yy), maximum(yy)],),
+    xaxis=attr(title_font_size=30, domain=[0,.30], range=[minimum(xx),maximum(xx)],title_text="p₂<br>Prio}"),
+    xaxis2=attr(title_font_size=30, domain=[.35,.65], range=[minimum(xx),maximum(xx)],title_text="p₂<br>Likelihood" ),
+    xaxis3=attr(title_font_size=30, domain=[.7,1], range=[minimum(xx),maximum(xx)],title_text="p₂<br>Posterior"),
+    legend=attr(
+        x=1.05,
+        y=.95,
+        xref="paper", 
+        yref="paper",
+        xanchor="right",
+        yanchor="top",
+        font=(
+            family="sans-serif",
+            size=35,
+            color="#000"
+        ),
+        bgcolor="#E2E2E2",
+        bordercolor= "#636363",
+        borderwidth=1
+    ),
+    coloraxis=attr(colorbar=attr(y=0.3, len=.7))
+)
+savefig( p2, joinpath(FIG_DIR,"LogisticGrowth_OptimizationLandscape.pdf"),height=400, width=1200)
+p2
 ##
 # global this, dx, ϵ
 # macro remainder_m(this, dx, ϵ, α)
