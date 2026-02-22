@@ -77,8 +77,8 @@
 
 %% Title Information
 \title{Bayesian weak form Estimation of Nonlinear Dynamics (BENDy)}
-\author{N. Rummel\inst{1}, S. Becker\inst{1}, V. Dukic\inst{1}, D. Bortz\inst{1}}
-\institute{\inst{1} Department of Applied Mathematics, University of Colorado Boulder
+\author{N.~Rummel, S.~Becker, D.M.~Bortz, V.~Dukic}
+\institute{Department of Applied Mathematics, University of Colorado Boulder
 % ,\inst{2} Los Alamos National Laboratory
 }
 
@@ -121,7 +121,7 @@
     Assume access to $M+1$ observations
     % \small
     % \begin{equation}\label{eq:data}
-        $\{(\mathrm{t}_m, \udisc_m)\}_{m=0}^M$
+        $\{(\mathrm{t}_m, \Udisc_m)\}_{m=0}^M$
     % \end{equation}
     % \normalfont
     where the data has been corrupted by noise $\noise_m \stackrel{iid}{\sim} \N(\mathbf{0},\Sigma)$.
@@ -129,8 +129,8 @@
     \begin{tabular}{lc}
         \textbf{Distribution} & \textbf{Data Description}\\
         \midrule
-        Additive Gaussian & $\udisc_m = \udisc_m + \noise_m$ \\
-        Multiplicative LogNormal & $\udisc_m = \udisc_m \exp(\noise_m)$
+        Additive Gaussian & $\Udisc_m = \udisc_m + \noise_m$ \\
+        Multiplicative LogNormal & $\Udisc_m = \udisc_m \exp(\noise_m)$
     \end{tabular}
     \end{table}
 \end{block}
@@ -163,13 +163,13 @@
 
 \begin{column}{\colwidth}
 \begin{block}{Approximate Distribution}
-    On expectation, the \alert{weak residual} should be small 
+    In expectation, the \alert{weak residual} should be small 
     \small
     \begin{equation}\label{eq:wres}
         \mathbf{0} \approx \r(\p) := \vecOp\left[\dot{\TestFundisc} \Q \F(\Udisc,\tdisc,\p) + \TestFundisc \Q \Udisc\right] \in \R^{KD}
     \end{equation}
     \normalfont
-    when $\p \approx \p^*$. Notice, $r(\p^*) \neq 0$ because 
+    when $\p \approx \p^*$. Notice, $\r(\p^*) \neq \mathbf{0}$ because 
     \begin{itemize}
         \item Inner products are \emph{approximated} through quadrature.
         \item Data $\Udisc$ is noisy.
@@ -181,7 +181,7 @@
         \S(\p)^{-\nicefrac{1}{2}} \r(\p) \stackrel{approx}{\sim} \N(\mathbf{0}, \id)
     \end{equation}
     \normalfont
-    where an analytic expression for $\S$ follows from the linearization and the noise distribution, see \citep{RummelMessengerBeckerEtAl2025arXiv250208881b}.
+    where an analytic expression for $\S$ follows from the linearization and the noise distribution, see \citep{RummelMessengerBeckerEtAl2025arXiv250208881}.
     % Moving all the parameters to the right hand side, we can define an expression for the \emph{weak residual} 
     % \begin{equation}\label{eq:wres}
     %     \mathbf{r}(\p) := \vecOp\left[\dot{\TestFundisc} \Q \F(\Udisc,\tdisc,\p) + \TestFundisc \Q \Udisc\right] \in \R^{(M+1)D}
@@ -191,13 +191,13 @@
 
 
 \begin{block}{Maximum a Posteriori Estimator}
-    Often a \alert{prior} for the parameters $\p \sim \Pi$ is known or one can utilize an \emph{objective prior} \citep{JordanMcLoughlin,Robert2007,ChoiRamamoorthi2008InstituteofMathematicalStatisticsCollections}. 
+    Often a \alert{prior} for the parameters $\p \sim \Pi$ is known. Alternatively, one can utilize an \emph{objective prior} \citep{JordanMcLoughlin,Robert2007,ChoiRamamoorthi2008InstituteofMathematicalStatisticsCollections}. 
     %Priors encode information known from experts or context such as \emph{constraints}.
 
     The approximate negative log-\alert{posterior} is proportional to
     \small
     \begin{equation}\label{eq:posterior}
-        \ell(\p) \propto \logdet\bigl(\S(\p)\bigr) + \r(\p)^\top \S(\p)^{-1}r(\p) + \pi(\p).
+        \ell(\p) \propto \logdet\bigl(\S(\p)\bigr) + \r(\p)^\top \S(\p)^{-1}\r(\p) + \pi(\p).
     \end{equation}
     \normalfont
 % \end{block}
@@ -206,14 +206,14 @@
     % \small
     \begin{equation}\label{eq:opt}
         \phat = \underset{\p}{\argmin}\Bigl( \ell(\p)\Bigr).
-    \end{equation}
+    \end{equation}\vspace{-3mm}
 \end{block}
 
 \begin{block}{Consistency}
     Recall, the \emph{Gaussian approximation} is obtained via a \emph{linearization} with respect to $\u$; this leads to \alert{bias}, even when data is dense
     \small
     \begin{equation}\label{eq:bias}
-        \lim_{M \rightarrow \infty}\mathbb{E}[\phat] \neq \mathbf{0}.
+        \lim_{M \rightarrow \infty}\mathbb{E}[\phat] \neq \pstar.
     \end{equation}
     \normalfont
     To address this, correct by using more terms in the expansion
@@ -232,7 +232,7 @@
     % \small
     \begin{equation}\label{eq:consistency}
         \lim_{M\rightarrow \infty} \mathbb{E}[\hat{\p}_{\mathrm{cor}} ]= \p^*.
-    \end{equation}
+    \end{equation}\vspace{-3mm}
     % To address this, solve a \alert{nonlinear system} in a post process 
     % \begin{equation}\label{eq:postProc}
     %     \min_{\p} \Bigl\|\bigl(\TestFundisc \Q \nabla_\p F(\tdisc, \Udisc, \p)\bigr)^{\dagger} \r(\tdisc, \Udisc, \p) \Bigr\|_2.
@@ -290,7 +290,7 @@
         ${\color{ForestGreen} p}_1 \sim 2(\beta(2,5) +0.8)$ and ${\color{ForestGreen} p}_2 \sim \text{Fr\'echet}(\alpha=3, \theta=5.503)$,
     % \end{center}
     \normalfont
-    one can now estimate for $\p$ with \cref{eq:opt} and \cref{eq:corrector}. 
+    one can now estimate  $\p$ with \cref{eq:opt} and \cref{eq:corrector}. 
     \begin{figure}[H]
         \centering
         \includegraphics[width=1\linewidth]{figures/LogisticGrowth_OptimizationLandscape.pdf}
