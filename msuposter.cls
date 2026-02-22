@@ -82,7 +82,7 @@
 \definecolor{msudarkgreen}{HTML}{0D2620}
 \definecolor{msubrightlightgreen}{HTML}{e7fdf0}
 \definecolor{msulighterpurple}{HTML}{ffe6fc}
-\definecolor{msulightgrey}{HTML}{e6e5e6}
+\definecolor{msulightgrey}{HTML}{e2e2e2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%           Set Global Properties            %%%
