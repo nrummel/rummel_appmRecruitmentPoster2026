@@ -1,23 +1,21 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
-%% The MSU Poster Class
-%%
-%% For typesetting academic posters in LaTeX at
-%% Michigan State University
-%%
+
 %% Originally Commissioned by the
 %% AMS Graduate Student Chapter at CMU
 %%
+%% Then modified for academic posters in LaTeX at
+%% Michigan State University
+%%
 %% Created by Rachel Domagalski and Dr. Patrick Davis
 %%
-%% Redesigned for use at MSU
+%% Redesigned for use at 
+%% Again edited by Nic Rummel for use at CU Boulder
 %%
 %% Original Version: 21 September 2016
-%% Last Updated: 13 October 2019
-%%
+%% Last Updated:  22 Feb 2026
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{msuposter}[2019/10/13 v1.0 document class for MSU posters]
+\ProvidesClass{rummelPoster}[2025/02/22]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%           Process Class Options            %%%
@@ -53,36 +51,36 @@
 \RequirePackage{graphicx}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%        Define the Official MSU Colors      %%%
+%%%        Define the Official  Colors      %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% From Brand Identity Standards and Web Style Guide 
 %% PRIMARY COLORS (backgrounds, headlines, buttons, containers)
-\definecolor{msugreen}{HTML}{18453B}
-\definecolor{msuwhite}{HTML}{FFFFFF}
+\definecolor{green}{HTML}{18453B}
+\definecolor{white}{HTML}{FFFFFF}
 
 %% SECONDARY COLORS (backgounds for pages, containers, buttons, etc)
-\definecolor{msubrightgreen}{HTML}{0DB14B}
-\definecolor{msugrey}{HTML}{97A2A2}
-\definecolor{msubrightorange}{HTML}{F08521}
-\definecolor{msuteal}{HTML}{008183}
-\definecolor{msublue}{HTML}{909AB7}
-\definecolor{msublack}{HTML}{535054}
-\definecolor{msuyellow}{HTML}{D1DE3F}
-\definecolor{msubiege}{HTML}{E8D9B5}
-\definecolor{msulightorange}{HTML}{C89A58}
-\definecolor{msuolive}{HTML}{94AE4A}
+\definecolor{brightgreen}{HTML}{0DB14B}
+\definecolor{grey}{HTML}{97A2A2}
+\definecolor{brightorange}{HTML}{F08521}
+\definecolor{teal}{HTML}{008183}
+\definecolor{blue}{HTML}{909AB7}
+\definecolor{black}{HTML}{535054}
+\definecolor{yellow}{HTML}{D1DE3F}
+\definecolor{biege}{HTML}{E8D9B5}
+\definecolor{lightorange}{HTML}{C89A58}
+\definecolor{olive}{HTML}{94AE4A}
 \definecolor{cugold}{HTML}{CFB87C}
-\definecolor{msured}{HTML}{CB5A28}
+\definecolor{red}{HTML}{CB5A28}
 
-% MSU TEXT COLORbeamercolortheme
-\definecolor{msutext}{HTML}{333333}
+%  TEXT COLORbeamercolortheme
+\definecolor{text}{HTML}{333333}
 
 %% Self Defined (not official, different saturation of official colors) %%
-\definecolor{msulightgreen}{HTML}{ecf8f6}
-\definecolor{msudarkgreen}{HTML}{0D2620}
-\definecolor{msubrightlightgreen}{HTML}{e7fdf0}
-\definecolor{msulighterpurple}{HTML}{ffe6fc}
-\definecolor{msulightgrey}{HTML}{e2e2e2}
+\definecolor{lightgreen}{HTML}{ecf8f6}
+\definecolor{darkgreen}{HTML}{0D2620}
+\definecolor{brightlightgreen}{HTML}{e7fdf0}
+\definecolor{lighterpurple}{HTML}{ffe6fc}
+\definecolor{lightgrey}{HTML}{e2e2e2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%           Set Global Properties            %%%
@@ -90,7 +88,7 @@
 
 %% Page Layout
 \RequirePackage[orientation=landscape,size=custom,width=40,height=32,scale=.5]{beamerposter}
-\setbeamercolor{background canvas}{bg=msulightgrey}
+\setbeamercolor{background canvas}{bg=lightgrey}
 \setbeamertemplate{navigation symbols}{}
 %% Change Default List Styles
 \setbeamertemplate{itemize items}[square]
@@ -115,7 +113,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% block
-%\setbeamercolor{block title}{fg=white,bg=msugreen}
+%\setbeamercolor{block title}{fg=white,bg=green}
 \setbeamercolor{block title}{fg=white,bg=black}
 \setbeamercolor{block body}{fg=black,bg=white}
 \AfterEndEnvironment{block}{\vspace{\myskip}}
@@ -133,7 +131,7 @@
 \setbeamertemplate{block end}{\end{beamercolorbox}}
 
 %% alertedblock
-\setbeamercolor{block title alerted}{fg=msuwhite,bg=msubrightgreen}
+\setbeamercolor{block title alerted}{fg=white,bg=brightgreen}
 \setbeamercolor{block body alerted}{fg=black,bg=white}
 
 \AfterEndEnvironment{alertblock}{\vspace{20pt}}
