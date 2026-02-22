@@ -185,8 +185,6 @@
       {\LARGE\insertauthor}\par\vspace{\myskip}
       {\Large\insertinstitute}
       {\@advisor}
-    \includegraphics[width=.2\textwidth]{figures/logo.pdf} 
-
     \end{flushleft}
   \end{column}
   \begin{column}{.22\paperwidth}
