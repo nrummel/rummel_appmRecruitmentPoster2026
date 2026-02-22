@@ -19,11 +19,15 @@
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage[dvipsnames,svgnames]{xcolor}
 \usepackage{booktabs}\let\cline\cmidrule
-
+% change alert text color
+\definecolor{plotlyblue}{HTML}{1f77b4}
+\definecolor{cugold}{HTML}{CFB87C}
+\definecolor{mybrickred}{HTML}{d62728}
+\setbeamercolor{alerted text}{fg=mybrickred}
 %% Hyperparameters
 \newcommand\myshade{85}
 \colorlet{mylinkcolor}{violet}
-\colorlet{mycitecolor}{YellowOrange}
+\colorlet{mycitecolor}{plotlyblue}
 \colorlet{myurlcolor}{Aquamarine}
 \hypersetup{
     colorlinks=true,
@@ -45,6 +49,7 @@
 \newcommand{\p}{{\color{ForestGreen}\mathbf{p}}}
 \newcommand{\pstar}{\p^*}
 \newcommand{\phat}{\hat{\p}_{\mathrm{MAP}}}
+\newcommand{\phatCMAP}{\hat{{\color{BrickRed}\mathbf{p}}}_{\mathrm{C-MAP}}}
 %% On the continuum
 \renewcommand{\u}{\boldsymbol{u}}
 \renewcommand{\t}{t}
@@ -84,6 +89,12 @@
 
 \begin{document}
 \begin{frame}{}
+\begin{tikzpicture}[remember picture, overlay]
+    % (0,0) is the center of the page by default with 'current page.center'
+    \node at (current page.north) [shift={(8cm, -4.25cm)}] {
+        \includegraphics[width=3cm]{figures/qrcode.pdf}
+    };
+\end{tikzpicture}
 \begin{columns}[t]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Left Column
@@ -126,7 +137,7 @@
     % \normalfont
     where the data has been corrupted by noise $\noise_m \stackrel{iid}{\sim} \N(\mathbf{0},\Sigma)$.
     \begin{table}
-    \begin{tabular}{lc}
+    \begin{tabular}{ll}
         \textbf{Distribution} & \textbf{Data Description}\\
         \midrule
         Additive Gaussian & $\Udisc_m = \udisc_m + \noise_m$ \\
@@ -154,6 +165,7 @@
     \end{tabular}
     \end{table}
     \normalfont
+    \vspace{-.2cm}
 \end{block}
 \end{column}
 
@@ -166,7 +178,7 @@
     In expectation, the \alert{weak residual} should be small 
     \small
     \begin{equation}\label{eq:wres}
-        \mathbf{0} \approx \r(\p) := \vecOp\left[\dot{\TestFundisc} \Q \F(\Udisc,\tdisc,\p) + \TestFundisc \Q \Udisc\right] \in \R^{KD}
+        \mathbf{0} \approx \r(\p) = \vecOp\left[\dot{\TestFundisc} \Q \F(\Udisc,\tdisc,\p) + \TestFundisc \Q \Udisc\right] \in \R^{KD}
     \end{equation}
     \normalfont
     when $\p \approx \p^*$. Notice, $\r(\p^*) \neq \mathbf{0}$ because 
@@ -221,7 +233,7 @@
     \begin{equation}\label{eq:corrector}
     \begin{gathered}
         \mathbf{c}(\p) = (\TestFundisc \Q \nabla_p \F(\tdisc, \Udisc, \p))^\dagger \vecOp\left[\sum_{\alpha=2}^{\alpha_{\mathrm{trunc}}} \frac{1}{\alpha!}\TestFundisc \Q \mathbb{E}\bigl[\nabla_{\u}^\alpha \F(\tdisc, \Udisc, \p)  \times_1 \Noisedisc \cdots \times_\alpha \Noisedisc  \bigr]\right],\\
-        \hat{\p}_{\mathrm{cor}} = 
+        \phatCMAP = 
         \hat{\p}_{\mathrm{MAP}} - \mathbf{c}(\hat{\p}_{\mathrm{MAP}}).
     \end{gathered}
     \end{equation}
@@ -231,7 +243,7 @@
     In a neighborhood of $\pstar$, \emph{consistency} is obtained 
     % \small
     \begin{equation}\label{eq:consistency}
-        \lim_{M\rightarrow \infty} \mathbb{E}[\hat{\p}_{\mathrm{cor}} ]= \p^*.
+        \lim_{M\rightarrow \infty} \mathbb{E}[\phatCMAP ]= \p^*.
     \end{equation}\vspace{-3mm}
     % To address this, solve a \alert{nonlinear system} in a post process 
     % \begin{equation}\label{eq:postProc}
@@ -257,6 +269,7 @@
     % \EndProcedure
     % \end{algorithmic} \end{minipage} \end{center}
     % \end{algorithm}
+    \vspace{-.2cm}
 \end{block} 
 
 \end{column}
@@ -273,7 +286,7 @@
     Consider the ordinary differential equation
     % \small
     \begin{equation} \label{eq:logisticGrowth}
-            \dot{u} = p_1 u - p_2 u^2
+            \dot{u} = {\color{ForestGreen} p}_1 u - {\color{ForestGreen} p}_2 u^2
     \end{equation}
     where $t \in [0,10]$ and $\pstar = [2.25, 7.0]^\top$.
     \normalfont
@@ -296,6 +309,7 @@
         \includegraphics[width=1\linewidth]{figures/LogisticGrowth_OptimizationLandscape.pdf}
         \label{fig:LogisticGrowth_OptimizationLandscape}
     \end{figure}
+    \vspace{-.5cm}
     Optimizing the prior or the likelihood alone leads to an estimate that is less accurate than either the MAP or its correction.
     % \small
     \begin{table}
@@ -305,19 +319,12 @@
         Prior &$\hat{\p}_{\Pi}$ & 27.4\% \\
         Likelihood &$\hat{\p}_{\mathrm{MLE}}$ & 9.1\% \\
         Posterior &$\phat$ & 7.9\%\\
-        Corrected &$\hat{\p}_{\mathrm{cor}}$ & \textbf{4.7\%}\\
+        Corrected &$\phatCMAP$ & \textbf{4.7\%}\\
         OE-LS & $\hat{\p}_{\mathrm{OE-LS}}$ & 7.3\%
     \end{tabular}
     \end{table}
     \vspace{-.2cm}
 \end{exampleblock}
-
-
-% \begin{exampleblock}{Example: Hindmarsh-Rose}
-
-%     \textbf{Conclusion}: \alert{The WENDy algorithm converges to reasonable parameters more often} than the forward solver based method. 
-    
-% \end{exampleblock}
 \end{column}
 \end{columns}
 \end{frame}
