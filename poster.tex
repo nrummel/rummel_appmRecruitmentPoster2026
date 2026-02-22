@@ -91,7 +91,7 @@
 \begin{frame}{}
 \begin{tikzpicture}[remember picture, overlay]
     % (0,0) is the center of the page by default with 'current page.center'
-    \node at (current page.north) [shift={(8cm, -4.25cm)}] {
+    \node at (current page.north) [shift={(8cm, -4cm)}] {
         \includegraphics[width=3cm]{figures/qrcode.pdf}
     };
 \end{tikzpicture}
@@ -181,7 +181,7 @@
         \mathbf{0} \approx \r(\p) = \vecOp\left[\dot{\TestFundisc} \Q \F(\Udisc,\tdisc,\p) + \TestFundisc \Q \Udisc\right] \in \R^{KD}
     \end{equation}
     \normalfont
-    when $\p \approx \p^*$. Notice, $\r(\p^*) \neq \mathbf{0}$ because 
+    when $\p \approx \p^*$. Notice, $\r(\p^*) \neq \mathbf{0}$ because: 
     \begin{itemize}
         \item Inner products are \emph{approximated} through quadrature.
         \item Data $\Udisc$ is noisy.
@@ -193,7 +193,7 @@
         \S(\p)^{-\nicefrac{1}{2}} \r(\p) \stackrel{approx}{\sim} \N(\mathbf{0}, \id)
     \end{equation}
     \normalfont
-    where an analytic expression for $\S$ follows from the linearization and the noise distribution, see \citep{RummelMessengerBeckerEtAl2025arXiv250208881}.
+    where an analytic expression for $\S$ follows from the linearization and the noise distribution, see \citep{RummelMessengerBeckerEtAl2025arXiv250208881b}.
     % Moving all the parameters to the right hand side, we can define an expression for the \emph{weak residual} 
     % \begin{equation}\label{eq:wres}
     %     \mathbf{r}(\p) := \vecOp\left[\dot{\TestFundisc} \Q \F(\Udisc,\tdisc,\p) + \TestFundisc \Q \Udisc\right] \in \R^{(M+1)D}
