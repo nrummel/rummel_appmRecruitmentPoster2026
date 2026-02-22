@@ -128,7 +128,7 @@ p1a = plotjs(
                 text="\$t\$",
                 font_size=25
             ),
-            tick_font_size=20,
+            tickfont_size=15,
             showgrid=true, 
             zeroline=true,
             # domain=[0.1,0.9]
@@ -138,7 +138,7 @@ p1a = plotjs(
                 text="\$u\$",
                 font_size=25
             ),
-            tick_font_size=20,
+            tickfont_size=15,
             showgrid=true, 
             zeroline=true
         ),
@@ -416,10 +416,10 @@ p2 = plot(
 display([p1; p2])
 ## Get the residual only due to integration error 
 Fstar = zeros(Mp1, D) 
+dx = zeros(D) 
 for m = 1:Mp1 
-    dx = zeros(D) 
     xstar = Xstar[m,:]
-    t = tt[m] 
+    local t = tt[m] 
     f!(dx, xstar, phat, t)
     Fstar[m,:] .= dx
 end
@@ -455,12 +455,12 @@ end
 dx = zeros(D, D)
 this = zeros(D)
 for m = 1:Mp1
-    x = X[m,:]
-    t = tt[m]
+    local x = X[m,:]
+    local t = tt[m]
     ∇ᵤf!(dx, x, phat, t)
     @views ∇ᵤF[m,:,:] .= dx
     ϵ = E[m,:]
-    this = dx * ϵ
+    global this = dx * ϵ
     ∇ᵤF_E[m,:] .= this 
 end
 Φ_∇ᵤF_E = Φ * ∇ᵤF_E 
@@ -587,21 +587,21 @@ for i = 2:max_iter+1
     ∇ₚF = zeros(Mp1,D,J)
     dx1 = zeros(D, J)
     for m = 1:Mp1
-        @views x = X[m,:]
-        t = tt[m]
+        @views local x = X[m,:]
+        local t = tt[m]
         ∇ₚf!(dx1, x, pᵢ₋₁, t)
         @views ∇ₚF[m,:,:] .= dx1
     end
     Φ_∇ₚF = zeros(K, D, J)
     @tullio Φ_∇ₚF[k,d,j] = Φ[k,m] * ∇ₚF[m,d,j] 
     Φ_∇ₚF = reshape(Φ_∇ₚF, K*D, J)
-    Rem = remainder(pᵢ₋₁)
+    global Rem = remainder(pᵢ₋₁)
     Φ_Rem = reshape(Φ*Rem, K*D)
     c = Φ_∇ₚF \ Φ_Rem
     @info "- c = $(c')"
     pp[i] = pᵢ₋₁ - c
     # pp[i] = phat_MAP - c
-    relErr_cor = norm(pp[i] - pstar) / norm(pstar)
+    local relErr_cor = norm(pp[i] - pstar) / norm(pstar)
     @info @sprintf "- relErr %.4g" relErr_cor
 end
 phat_cor = pp[end]
@@ -722,13 +722,33 @@ function compareOptimizationLandscapes(xx,yy)
         ixNaN = findall(isnan.(ff) .|| isinf.(ff))
         ff[ixNaN] .= 1e6
         legendgrouptitle, phat,c_x,c_y,c_len,visible,zmin,zmax = if i == 1
-            "Prior", phat_prior, .25, 0.5,1, true,1.98,2.05
+            "Prior", phat_prior, .25, 0.5,1, false,1.98,2.05
         elseif i==2
             "Likelihood", phat_MLE, .6, 0.5,1, false,2.5,4.2
         else
             "Posterior", phat_MAP, 1, 0.3,.6, true,2.5,4.2
         end
-        add_trace!(pp,heatmap(x=xx, y=yy, z=ff,zmin=zmin,zmax=zmax, legendgroup=legendgrouptitle, legendgrouptitle_text=legendgrouptitle, showlegend=false, colorbar=attr(x=c_x,y=c_y,len=c_len), showscale=visible), row=1, col=i)
+        add_trace!(
+            pp,
+            heatmap(
+                x=xx,
+                y=yy,
+                z=ff,
+                zmin=zmin,
+                zmax=zmax,
+                legendgroup=legendgrouptitle,
+                legendgrouptitle_text=legendgrouptitle,
+                showlegend=false,
+                colorbar=attr(
+                    x=c_x,
+                    y=c_y,
+                    len=c_len,
+                    tickfont_size=20,
+                ),
+                showscale=visible,
+                ), 
+            row=1, col=i
+        )
         add_trace!(pp,scatter(mode="markers", marker_opacity=1, x=[p₀[1]], y=[p₀[2]], showlegend=i==1,name="\$\\mathbf{p}^{(0)}\$", marker=attr(symbol="square", color="black", size=20)), row=1, col=i)
         add_trace!(pp,scatter(mode="markers", marker_opacity=0.8, x=[phat[1]], y=[phat[2]], showlegend=i==1, name="\$\\hat{\\mathbf{p}}\$", marker=attr(symbol="diamond", color="red", size=20)), row=1, col=i)
         add_trace!(pp,scatter(mode="markers", marker_opacity=.8, x=[pstar[1]], y=[pstar[2]], showlegend=i==1, name="\$\\mathbf{p}^*\$", marker=attr(symbol="star", color="green", size=20)), row=1, col=i)
@@ -747,12 +767,40 @@ relayout!(p2,
         xanchor="center",
         x=0.5
     ),
-    yaxis=attr(title_font_size=30, range=[minimum(yy), maximum(yy)],title_text="p₁"),
-    yaxis2=attr(title_font_size=30, range=[minimum(yy), maximum(yy)],),
-    yaxis3=attr(title_font_size=30, range=[minimum(yy), maximum(yy)],),
-    xaxis=attr(title_font_size=30, domain=[0,.30], range=[minimum(xx),maximum(xx)],title_text="p₂<br>Prio}"),
-    xaxis2=attr(title_font_size=30, domain=[.35,.65], range=[minimum(xx),maximum(xx)],title_text="p₂<br>Likelihood" ),
-    xaxis3=attr(title_font_size=30, domain=[.7,1], range=[minimum(xx),maximum(xx)],title_text="p₂<br>Posterior"),
+    yaxis=attr(
+        tickfont_size=20,
+        title_font_size=30, 
+        range=[minimum(yy), maximum(yy)],
+        title_text="p₁"
+    ),
+    yaxis2=attr(
+        tickfont_size=20,
+        title_font_size=30, 
+        range=[minimum(yy), maximum(yy)],
+    ),
+    yaxis3=attr(
+        tickfont_size=20,
+        title_font_size=30, 
+        range=[minimum(yy), maximum(yy)],
+    ),
+    xaxis=attr(
+        tickfont_size=20,
+        title_font_size=30, 
+        domain=[0,.30], 
+        range=[minimum(xx),maximum(xx)],title_text="p₂<br>Negative<br>Log-Prior"
+    ),
+    xaxis2=attr(
+        tickfont_size=20,
+        title_font_size=30, 
+        domain=[.35,.65], 
+        range=[minimum(xx),maximum(xx)],title_text="p₂<br>Negative<br>Log-Likelihood" 
+    ),
+    xaxis3=attr(
+        tickfont_size=20,
+        title_font_size=30, 
+        domain=[.7,1], 
+        range=[minimum(xx),maximum(xx)],title_text="p₂<br>Negative<br>Log-Posterior"
+    ),
     legend=attr(
         x=1.05,
         y=.95,
@@ -769,9 +817,14 @@ relayout!(p2,
         bordercolor= "#636363",
         borderwidth=1
     ),
-    coloraxis=attr(colorbar=attr(y=0.3, len=.7))
+    coloraxis=attr(
+        colorbar=attr(
+            y=0.3, 
+            len=.7,
+        )
+    )
 )
-savefig( p2, joinpath(FIG_DIR,"LogisticGrowth_OptimizationLandscape.pdf"),height=400, width=1200)
+savefig( p2, joinpath(FIG_DIR,"LogisticGrowth_OptimizationLandscape.pdf"),height=500, width=1200)
 p2
 ##
 # global this, dx, ϵ
